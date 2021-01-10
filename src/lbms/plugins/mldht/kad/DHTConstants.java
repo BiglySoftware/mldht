@@ -61,7 +61,7 @@ public class DHTConstants {
 			InetSocketAddress.createUnresolved("dht.transmissionbt.com", 6881),
 			InetSocketAddress.createUnresolved("router.bittorrent.com", 6881),
 			InetSocketAddress.createUnresolved("router.utorrent.com", 6881),
-			InetSocketAddress.createUnresolved("router.silotis.us", 6881),
+			//InetSocketAddress.createUnresolved("router.silotis.us", 6881), // IPv6 only; errors on IPv4
 	};
 	private static String version = null;
 

@@ -269,7 +269,7 @@ public class TorrentFetcher {
 	public class FetchTask {
 		
 		Key hash;
-		Instant startTime;
+		long startTime;
 		CompletableFuture<FetchTask> future = new CompletableFuture<>();
 		Set<InetSocketAddress> pinged = Collections.newSetFromMap(new ConcurrentHashMap<>()) ;
 		Map<InetSocketAddress, PullMetaDataConnection.CONNECTION_STATE> closed = new ConcurrentHashMap<>();
@@ -298,7 +298,7 @@ public class TorrentFetcher {
 			String[] str = {
 					hash.toString(false),
 					"age:",
-					Duration.between(startTime, Instant.now()).toString(),
+					(System.currentTimeMillis() - startTime) + "ms",
 					"cand:",
 					String.valueOf(candidates.size()),
 					"con active:",
@@ -344,7 +344,7 @@ public class TorrentFetcher {
 		}
 
 		void start() {
-			startTime = Instant.now();
+			startTime = System.currentTimeMillis();
 		}
 		
 		void addCandidate(KBucketEntry source, PeerAddressDBItem toAdd) {

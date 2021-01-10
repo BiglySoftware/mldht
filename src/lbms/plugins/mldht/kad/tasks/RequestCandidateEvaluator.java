@@ -75,7 +75,7 @@ public class RequestCandidateEvaluator {
 	
 	@Override
 	public String toString() {
-		return t.age().toMillis() +" "+ t.counts + " " + closest + " cand:" + candidate.getID().findApproxKeyDistance(target);
+		return t.age() +" "+ t.counts + " " + closest + " cand:" + candidate.getID().findApproxKeyDistance(target);
 	}
 	
 	

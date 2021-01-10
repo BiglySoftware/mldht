@@ -10,8 +10,6 @@ import static the8472.utils.Functional.unchecked;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Formatter;
@@ -152,7 +150,7 @@ java.lang.IllegalArgumentException: Comparison method violates its general contr
 		f.format("%n======%n%n");
 		
 		
-		Instant now = Instant.now();
+		long now = System.currentTimeMillis();
 		
 		
 		
@@ -163,7 +161,7 @@ java.lang.IllegalArgumentException: Comparison method violates its general contr
 			f.format("%s (s:%d p:%d)%n", k.toString(false), v.seeds().size(), v.peers().size());
 			
 			Stream.concat(v.seeds().stream(), v.peers().stream()).sorted((a,b) -> Arrays.compareUnsigned(a.getData(), b.getData())).forEachOrdered(i -> {
-				unchecked(() -> writer.append("  ").append(i.toString()).append(" age: ").append(Duration.between(Instant.ofEpochMilli(i.getCreatedAt()), now).toString()).append('\n'));
+				unchecked(() -> writer.append("  ").append(i.toString()).append(" age: ").append("" + (now - i.getCreatedAt())).append('\n'));
 			});
 			
 			

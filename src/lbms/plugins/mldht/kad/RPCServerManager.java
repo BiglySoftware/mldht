@@ -7,12 +7,7 @@ package lbms.plugins.mldht.kad;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -37,7 +32,7 @@ public class RPCServerManager {
 	}
 	
 	DHT dht;
-	private ConcurrentHashMap<InetAddress,RPCServer> interfacesInUse = new ConcurrentHashMap<>();
+	private Map<InetAddress,RPCServer> interfacesInUse = new ConcurrentHashMap<>();
 	private volatile List<InetAddress> validBindAddresses = Collections.emptyList();
 	private volatile RPCServer[] activeServers = new RPCServer[0];
 	private SpamThrottle outgoingThrottle = new SpamThrottle();
@@ -148,7 +143,7 @@ public class RPCServerManager {
 		}
 		
 		// default bind changed and server is not reachable anymore. this may happen when an interface is nominally still available but not routable anymore. e.g. ipv6 temporary addresses
-		if(current != null && defaultBind != null && !current.getBindAddress().equals(defaultBind) && !current.isReachable() && current.age().getSeconds() > TimeUnit.MINUTES.toSeconds(2)) {
+		if(current != null && defaultBind != null && !current.getBindAddress().equals(defaultBind) && !current.isReachable() && current.ageSecs() > TimeUnit.MINUTES.toSeconds(2)) {
 			DHT.logInfo("stopping currently unreachable " + current.getBindAddress() + "to bind to new default route" + defaultBind);
 			current.stop();
 			newServer(defaultBind);

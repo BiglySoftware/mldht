@@ -44,9 +44,7 @@ import lbms.plugins.mldht.kad.utils.ByteWrapper;
 import lbms.plugins.mldht.kad.utils.PopulationEstimator;
 import lbms.plugins.mldht.utils.NIOConnectionManager;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -55,8 +53,6 @@ import java.net.ProtocolFamily;
 import java.net.SocketException;
 import java.net.StandardProtocolFamily;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -160,7 +156,7 @@ public class DHT implements DHTBase {
 	private TaskManager						tman;
 	IDMismatchDetector						mismatchDetector;
 	NonReachableCache						unreachableCache;
-	private Path							table_file;
+	private File							table_file;
 	private boolean							useRouterBootstrapping;
 
 	private List<DHTStatsListener>			statsListeners;
@@ -686,11 +682,12 @@ public class DHT implements DHTBase {
 			this.scheduler = getDefaultScheduler();
 		this.config = config;
 		useRouterBootstrapping = !config.noRouterBootstrap();
+
+		File storagePath = config.getStoragePath();
+		if(!storagePath.isDirectory())
+			DHT.log("Warning: storage path " + storagePath +" is not a directory. DHT will not be able to persist state" , LogLevel.Info);
 		
-		if(!Files.isDirectory(config.getStoragePath()))
-			DHT.log("Warning: storage path " + config.getStoragePath() +" is not a directory. DHT will not be able to persist state" , LogLevel.Info);
-		
-		table_file = config.getStoragePath().resolve(type.shortName+"-table.cache");
+		table_file = new File(storagePath, type.shortName+"-table.cache");
 
 		setStatus(DHTStatus.Stopped, DHTStatus.Initializing);
 		stats.resetStartedTimestamp();
@@ -728,6 +725,12 @@ public class DHT implements DHTBase {
 		
 		if(serverManager.getServerCount() == 0) {
 			logError("No network interfaces eligible for DHT sockets found during startup."
+					+ "\nAddress family: " + this.getType()
+					+ "\nmultihoming [requires public IP addresses if enabled]: " + config.allowMultiHoming()
+					+ "\nPublic IP addresses: " + AddressUtils.availableGloballyRoutableAddrs(AddressUtils.allAddresses(), getType().PREFERRED_ADDRESS_TYPE).map(InetAddress::toString).collect(Collectors.joining(", "))
+					+ "\nDefault route: " + AddressUtils.getDefaultRoute(getType().PREFERRED_ADDRESS_TYPE));
+		} else {
+			logVerbose(serverManager.getServerCount() + " Servers."
 					+ "\nAddress family: " + this.getType()
 					+ "\nmultihoming [requires public IP addresses if enabled]: " + config.allowMultiHoming()
 					+ "\nPublic IP addresses: " + AddressUtils.availableGloballyRoutableAddrs(AddressUtils.allAddresses(), getType().PREFERRED_ADDRESS_TYPE).map(InetAddress::toString).collect(Collectors.joining(", "))

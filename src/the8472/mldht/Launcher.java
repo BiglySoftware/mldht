@@ -5,9 +5,7 @@
  ******************************************************************************/
 package the8472.mldht;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -18,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,8 +68,8 @@ public class Launcher {
 		}
 
 		@Override
-		public Path getStoragePath() {
-			return Paths.get(".");
+		public File getStoragePath() {
+			return new File(".");
 		}
 
 		@Override
@@ -150,7 +147,7 @@ public class Launcher {
 		logger = new DHTLogger() {
 
 			private String timeFormat(LogLevel level) {
-				return "[" + Instant.now().toString() + "][" + level.toString() + "] ";
+				return "[" + System.currentTimeMillis() + "][" + level.toString() + "] ";
 			}
 
 			TransferQueue<String> toLog = new LinkedTransferQueue<>();

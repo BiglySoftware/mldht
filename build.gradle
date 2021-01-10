@@ -1,0 +1,33 @@
+apply plugin: 'java-library'
+
+compileJava.options.encoding = "UTF-8"
+
+sourceSets {
+    main {
+        java {
+            srcDirs = [
+                    'src'
+            ]
+        }
+
+        resources {
+            includes = ['**/*.properties']
+            srcDirs = [
+                    'src'
+            ]
+            exclude 'bin/**'
+            exclude 'bin'
+            exclude 'test/**'
+            exclude 'test'
+        }
+    }
+}
+
+dependencies {
+    implementation 'net.i2p.crypto:eddsa:0.3.0'
+}
+
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}

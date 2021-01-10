@@ -30,18 +30,20 @@ import lbms.plugins.mldht.kad.tasks.Task;
 import lbms.plugins.mldht.kad.utils.AddressUtils;
 import lbms.plugins.mldht.kad.utils.ThreadLocalUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+/* Android minSDK 26
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+*/
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -258,7 +260,7 @@ public class Node {
 	private Key baseKey;
 	private final CowSet<Key> usedIDs = new CowSet<>();
 	private volatile Map<InetAddress,RoutingTableEntry> knownNodes = new HashMap<>();
-	private ConcurrentHashMap<InetAddress , Long> unsolicitedThrottle = new ConcurrentHashMap<>();
+	private Map<InetAddress , Long> unsolicitedThrottle = new ConcurrentHashMap<>();
 	private Map<KBucket, Task> maintenanceTasks = new IdentityHashMap<>();
 	
 	Collection<NetMask> trustedNodes = Collections.emptyList();
@@ -885,9 +887,12 @@ public class Node {
 	 * @param file to save to
 	 * @throws IOException
 	 */
-	void saveTable(Path saveTo) throws IOException {
+	void saveTable(File saveTo) throws IOException {
 		// don't persist in test mode
+/* Android minSDK 26
 		if(!Files.isDirectory(saveTo.getParent()))
+ */
+		if (!saveTo.isDirectory())
 			return;
 		
 		Key currentRootID = getRootID();
@@ -918,26 +923,29 @@ public class Node {
 		
 		new BEncoder().encodeInto(tableMap, tableBuffer);
 		
+/* Android minSDK 26
 		Path tempFile = Files.createTempFile(saveTo.getParent(), "saveTable", "tmp");
-		
 		try(SeekableByteChannel chan = Files.newByteChannel(tempFile, StandardOpenOption.WRITE)) {
 			chan.write(tableBuffer);
 			chan.close();
 			Files.move(tempFile, saveTo, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
 		};
-
+*/
+		File tempFile = File.createTempFile("saveTable", "tmp", saveTo.getParentFile());
+		if (saveToFile(tempFile, tableBuffer)) {
+			moveFile(tempFile, saveTo);
+		}
 	}
 	
 	void initKey(DHTConfiguration config)
 	{
 		if(config != null && config.isPersistingID()) {
-			Path keyPath = config.getStoragePath().resolve("baseID.config");
-			File keyFile = keyPath.toFile();
+			File keyFile = new File(config.getStoragePath(), "baseID.config");
 			
 			if (keyFile.exists() && keyFile.isFile()) {
 				try {
-					List<String> raw = Files.readAllLines(keyPath);
-					baseKey = raw.stream().map(String::trim).filter(Key.STRING_PATTERN.asPredicate()).findAny().map(Key::new).orElseThrow(() -> new IllegalArgumentException(keyPath.toString()+" did not contain valid node ID"));
+					List<String> raw = readAllLines(keyFile);
+					baseKey = raw.stream().map(String::trim).filter(Key.STRING_PATTERN.asPredicate()).findAny().map(Key::new).orElseThrow(() -> new IllegalArgumentException(keyFile+" did not contain valid node ID"));
 					return;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -950,15 +958,59 @@ public class Node {
 		persistKey();
 	}
 	
+	static List<String> readAllLines(File f)
+			throws IOException {
+		ArrayList<String> result = new ArrayList<>();
+
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {
+			while (br.ready()) {
+				result.add(br.readLine());
+			}
+		}
+		return result;
+	}
+	
+	static boolean saveToFile(File f, ByteBuffer bb) {
+		try {
+			FileOutputStream fos = new FileOutputStream(f);
+			fos.write(bb.array());
+			fos.close();
+			return true;
+		} catch (Exception ignore) {
+		}
+		return false;
+	}
+
+	static boolean saveToFile(File f, Iterable<? extends CharSequence> lines, Charset cs) {
+		try (FileWriter br = new FileWriter(f)) {
+			for (CharSequence line : lines) {
+				br.write(line.toString());
+			}
+		} catch (Exception ignore) {
+		}
+		return false;
+	}
+
+
+	public static void moveFile(File oldFile, File newFile) {
+		if (newFile.delete()) {
+			oldFile.renameTo(newFile);
+		}
+	}
+	
 	void persistKey() {
 		DHTConfiguration config = dht.getConfig();
 		
 		if(config == null)
 			return;
 		
+/* Android minSDK 26
 		Path keyPath = config.getStoragePath().resolve("baseID.config");
+ */
+		File keyPath = new File(config.getStoragePath(), "baseID.config");
 		
 		try {
+/* Android minSDK 26
 			if(!Files.isDirectory(config.getStoragePath()))
 				return;
 			Path tmpFile = Files.createTempFile(config.getStoragePath(), "baseID", ".tmp");
@@ -966,6 +1018,13 @@ public class Node {
 			Files.write(tmpFile, Collections.singleton(baseKey.toString(false)), StandardCharsets.ISO_8859_1);
 			Files.move(tmpFile, keyPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
 			
+ */
+			if (!config.getStoragePath().isDirectory())
+				return;
+			File tempFile = File.createTempFile("baseID", "tmp", config.getStoragePath());
+			if (saveToFile(tempFile, Collections.singleton(baseKey.toString(false)), Charset.forName("ISO-8859-1"))) {
+				moveFile(tempFile, keyPath);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -984,14 +1043,17 @@ public class Node {
 	 * @param runWhenLoaded is executed when all load operations are finished
 	 * @throws IOException
 	 */
-	void loadTable (Path tablePath) {
+	void loadTable (File tablePath) {
 		
-		File f = tablePath.toFile();
+		File f = tablePath;
 		
 		if(!f.exists() || !f.isFile())
 			return;
 		
+/* Android minSDK 26
 		try(FileChannel chan = FileChannel.open(tablePath, StandardOpenOption.READ)) {
+ */
+		try(FileChannel chan = new RandomAccessFile(tablePath, "r").getChannel()) {
 			
 			// don't use mmap, that would keep the file undeletable on windows, which would interfere with write-atomicmove persistence
 			ByteBuffer buf = ByteBuffer.allocateDirect((int)chan.size());

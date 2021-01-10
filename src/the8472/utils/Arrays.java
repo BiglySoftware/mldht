@@ -5,33 +5,48 @@
  ******************************************************************************/
 package the8472.utils;
 
+/* Android minSDK 26
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+*/
+import java.lang.reflect.Method;
 
 public class Arrays {
 	
-	private static final java.lang.invoke.MethodHandle compareImpl;
-	private static final java.lang.invoke.MethodHandle mismatchImpl;
+	private static final Method compareImpl;
+	private static final Method mismatchImpl;
 	
 	static {
-		
-		MethodHandle compU = null;
-		MethodHandle mism = null;
+
+		Method compU = null;
+		Method mism = null;
 		
 		try {
+			compU = java.util.Arrays.class.getDeclaredMethod("compareUnsigned", byte[].class, byte[].class);
+			mism = java.util.Arrays.class.getDeclaredMethod("mismatch", byte[].class, byte[].class);
+/* Android minSDK 26
 			compU = MethodHandles.lookup().findStatic(java.util.Arrays.class, "compareUnsigned", MethodType.methodType(int.class, byte[].class, byte[].class));
 			mism = MethodHandles.lookup().findStatic(java.util.Arrays.class, "mismatch", MethodType.methodType(int.class, byte[].class, byte[].class));
 		} catch (NoSuchMethodException | IllegalAccessException e) {
+*/
+		} catch (Throwable ignore) {
 			// no java9
 		}
 		
 		if(compU == null) {
 			try {
+				compU = Arrays.class.getDeclaredMethod("compareUnsignedFallback", byte[].class,
+						byte[].class);
+				mism = Arrays.class.getDeclaredMethod("mismatchFallback", byte[].class, byte[].class);
+/* Android minSDK 26
 				compU = MethodHandles.lookup().findStatic(Arrays.class, "compareUnsignedFallback", MethodType.methodType(int.class, byte[].class, byte[].class));
 				mism  = MethodHandles.lookup().findStatic(Arrays.class, "mismatchFallback", MethodType.methodType(int.class, byte[].class, byte[].class));
 				
 			}  catch (NoSuchMethodException | IllegalAccessException e) {
+			
+ */
+			} catch (Throwable nogood) {
 				throw new Error("should not happen");
 			}
 		}
@@ -43,7 +58,7 @@ public class Arrays {
 	
 	public static int compareUnsigned(byte[] a, byte[] b) {
 		try {
-			return (int) compareImpl.invokeExact(a, b);
+			return (Integer) compareImpl.invoke(null, a, b);
 		} catch(RuntimeException e) {
 			throw e;
 		} catch(Throwable e) {
@@ -54,7 +69,7 @@ public class Arrays {
 	
 	public static int mismatch(byte[] a, byte[] b) {
 		try {
-			return (int) mismatchImpl.invokeExact(a, b);
+			return (Integer) mismatchImpl.invoke(null, a, b);
 		} catch(RuntimeException e) {
 			throw e;
 		} catch(Throwable e) {

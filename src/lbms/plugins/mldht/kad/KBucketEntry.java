@@ -249,9 +249,9 @@ public class KBucketEntry {
 		StringBuilder b = new StringBuilder(80);
 		b.append(nodeID+"/"+addr);
 		if(lastSendTime > 0)
-			b.append(";sent:"+Duration.ofMillis(now-lastSendTime));
-		b.append(";seen:"+Duration.ofMillis(now-lastSeen));
-		b.append(";age:"+Duration.ofMillis(now-timeCreated));
+			b.append(";sent:"+(now-lastSendTime));
+		b.append(";seen:"+(now-lastSeen));
+		b.append(";age:"+(now-timeCreated));
 		if(failedQueries != 0)
 			b.append(";fail:"+failedQueries);
 		if(verified)

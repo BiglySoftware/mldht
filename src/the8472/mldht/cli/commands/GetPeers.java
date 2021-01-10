@@ -15,8 +15,6 @@ import lbms.plugins.mldht.kad.tasks.PeerLookupTask;
 import lbms.plugins.mldht.kad.utils.AddressUtils;
 import lbms.plugins.mldht.utils.NIOConnectionManager;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
@@ -47,7 +45,7 @@ public class GetPeers extends CommandProcessor {
 			hashes.add(Key.createRandomKey());
 		
 		AtomicInteger taskCounter = new AtomicInteger();
-		Instant start = Instant.now();
+		long start = System.currentTimeMillis();
 		
 		
 		
@@ -85,9 +83,9 @@ public class GetPeers extends CommandProcessor {
 				t.setResultHandler((source, item) -> {
 					Formatter f = new Formatter();
 					
-					Duration elapsed = Duration.between(start, Instant.now());
+					long elapsed = System.currentTimeMillis() - start;
 					
-					f.format("%-5dms %s %s from: %s", elapsed.toMillis(), h.toString(), AddressUtils.toString(item.toSocketAddress()), source);
+					f.format("%-5dms %s %s from: %s", elapsed, h.toString(), AddressUtils.toString(item.toSocketAddress()), source);
 					
 					println(f.toString());
 				});

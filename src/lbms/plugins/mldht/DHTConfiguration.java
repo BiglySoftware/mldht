@@ -7,8 +7,8 @@ package lbms.plugins.mldht;
 
 import lbms.plugins.mldht.kad.DHT;
 
+import java.io.File;
 import java.net.InetAddress;
-import java.nio.file.Path;
 import java.util.function.Predicate;
 
 public interface DHTConfiguration {
@@ -22,7 +22,7 @@ public interface DHTConfiguration {
 	 * If a Path that points to an existing, writable directory is returned then the routing table
 	 * will be persisted to that directory periodically and during shutdown
 	 */
-	public Path getStoragePath();
+	public File getStoragePath();
 
 	public int getListeningPort();
 	

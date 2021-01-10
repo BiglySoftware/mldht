@@ -42,8 +42,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.LinkedHashMap;
@@ -87,7 +85,7 @@ public class RPCServer {
 	private volatile int							numReceived;
 	private volatile int							numSent;
 	private int										port;
-	private Instant									startTime;
+	private long									startTime;
 	private RPCStats								stats;
 	// keeps track of RTT histogram for nodes not in our routing table
 	private ResponseTimeoutFilter					timeoutFilter;
@@ -180,7 +178,7 @@ public class RPCServer {
 	public void start() {
 		if(state != State.INITIAL)
 			throw new IllegalStateException("already initialized");
-		startTime = Instant.now();
+		startTime = System.currentTimeMillis();
 		state = State.RUNNING;
 		DHT.logInfo("Starting RPC Server " + addr + " " + derivedId.toString(false));
 		sel.start();
@@ -506,7 +504,7 @@ public class RPCServer {
 		
 		// a) it's a response b) didn't find a call c) uptime is high enough that it's not a stray from a restart
 		// -> did not expect this response
-		if (msg.getType() == Type.RSP_MSG && Duration.between(startTime, Instant.now()).getSeconds() > 2*60) {
+		if (msg.getType() == Type.RSP_MSG &&  (System.currentTimeMillis() - startTime) / 1000 > 2*60) {
 			byte[] mtid = msg.getMTID();
 			DHT.logDebug("Cannot find RPC call for response: "+ Utils.prettyPrint(mtid));
 			ErrorMessage err = new ErrorMessage(mtid, ErrorCode.ServerError.code, "received a response message whose transaction ID did not match a pending request or transaction expired");
@@ -627,21 +625,27 @@ public class RPCServer {
 		
 		f.format("%s\tbind: %s consensus: %s%n", getDerivedID(), getBindAddress(), consensusExternalAddress);
 		f.format("rx: %d tx: %d active: %d baseRTT: %d loss: %f  loss (verified): %f uptime: %s%n",
-				numReceived, numSent, getNumActiveRPCCalls(), timeoutFilter.getStallTimeout(), unverifiedLossrate.getAverage(), verifiedEntryLossrate.getAverage() , age());
+				numReceived, numSent, getNumActiveRPCCalls(), timeoutFilter.getStallTimeout(), unverifiedLossrate.getAverage(), verifiedEntryLossrate.getAverage() , ageSecs());
 		f.format("RTT stats (%dsamples) %s", timeoutFilter.getSampleCount(), timeoutFilter.getCurrentStats());
 
 		return f.toString();
 	}
 	
+/* Android minSDK 26
 	Duration age() {
-		Instant start = startTime;
+		long start = startTime;
 		if(start == null)
 			return Duration.ZERO;
 		return Duration.between(start, Instant.now());
 	}
+ */
 	
-	static final ThreadLocal<ByteBuffer> writeBuffer = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(1500));
-	static final ThreadLocal<ByteBuffer> readBuffer = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(DHTConstants.RECEIVE_BUFFER_SIZE));
+	long ageSecs() {
+		return startTime == 0 ? 0 : (System.currentTimeMillis() - startTime) / 1000;
+	}
+	
+	static final ThreadLocal<ByteBuffer> writeBuffer = ThreadLocalUtils.withInitial(() -> ByteBuffer.allocateDirect(1500));
+	static final ThreadLocal<ByteBuffer> readBuffer = ThreadLocalUtils.withInitial(() -> ByteBuffer.allocateDirect(DHTConstants.RECEIVE_BUFFER_SIZE));
 	
 	class SocketHandler implements Selectable {
 		DatagramChannel channel;

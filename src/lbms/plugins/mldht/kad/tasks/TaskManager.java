@@ -5,13 +5,7 @@
  ******************************************************************************/
 package lbms.plugins.mldht.kad.tasks;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,7 +21,7 @@ import lbms.plugins.mldht.kad.tasks.Task.TaskState;
  */
 public class TaskManager {
 
-	private ConcurrentHashMap<RPCServer, ServerSet> taskSets;
+	private Map<RPCServer, ServerSet> taskSets;
 	private DHT					dht;
 	private AtomicInteger		next_id = new AtomicInteger();
 	private TaskListener		finishListener 	= t -> {
@@ -130,8 +124,11 @@ public class TaskManager {
 	
 	
 	public void dequeue() {
-		for(RPCServer srv : taskSets.keySet())
+		for (Iterator<RPCServer> iterator = taskSets.keySet()
+				.iterator(); iterator.hasNext(); ) {
+			RPCServer srv = iterator.next();
 			setFor(srv).ifPresent(ServerSet::dequeue);
+		}
 	}
 
 	/**

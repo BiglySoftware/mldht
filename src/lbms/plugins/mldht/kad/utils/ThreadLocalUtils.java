@@ -8,13 +8,14 @@ package lbms.plugins.mldht.kad.utils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Objects;
 import java.util.Random;
 
 import the8472.bencode.BDecoder;
 
 public class ThreadLocalUtils {
 
-	private static ThreadLocal<Random> randTL = ThreadLocal.withInitial(() -> {
+	private static ThreadLocal<Random> randTL = withInitial(() -> {
 		try
 		{
 			return SecureRandom.getInstance("SHA1PRNG");
@@ -23,7 +24,7 @@ public class ThreadLocalUtils {
 		}
 	});
 	
-	private static ThreadLocal<MessageDigest> sha1TL = ThreadLocal.withInitial(() -> {
+	private static ThreadLocal<MessageDigest> sha1TL = withInitial(() -> {
 		try {
 			return MessageDigest.getInstance("SHA");
 		} catch (NoSuchAlgorithmException e) {
@@ -31,7 +32,7 @@ public class ThreadLocalUtils {
 		}
 	});
 	
-	private static ThreadLocal<BDecoder> decoder = ThreadLocal.withInitial(() -> new BDecoder());
+	private static ThreadLocal<BDecoder> decoder = withInitial(() -> new BDecoder());
 	
 
 	public static Random getThreadLocalRandom() {
@@ -45,5 +46,25 @@ public class ThreadLocalUtils {
 	public static MessageDigest getThreadLocalSHA1() {
 		return sha1TL.get();
 	}
-	
+
+	public static <S> ThreadLocal<S> withInitial(Supplier<? extends S> var0) {
+		return new SuppliedThreadLocal(var0);
+	}
+
+	static final class SuppliedThreadLocal<T> extends ThreadLocal<T> {
+		private final Supplier<? extends T> supplier;
+
+		SuppliedThreadLocal(Supplier<? extends T> var1) {
+			this.supplier = (Supplier) Objects.requireNonNull(var1);
+		}
+
+		protected T initialValue() {
+			return this.supplier.get();
+		}
+	}
+
+	@FunctionalInterface
+	public interface Supplier<T> {
+		T get();
+	}
 }

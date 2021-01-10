@@ -25,8 +25,6 @@ import lbms.plugins.mldht.kad.RPCServer;
 import lbms.plugins.mldht.kad.RPCState;
 import lbms.plugins.mldht.kad.messages.MessageBase;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -450,8 +448,8 @@ public abstract class Task implements Comparable<Task> {
 		}
 	}
 	
-	public Duration age() {
-		return Duration.between(Instant.ofEpochMilli(startTime), Instant.now());
+	public long age() {
+		return System.currentTimeMillis() - startTime;
 	}
 	
 	@Override
@@ -475,9 +473,9 @@ public abstract class Task implements Comparable<Task> {
 		
 		if(startTime != 0) {
 			if(finishTime == 0)
-				b.append(" age:").append(age());
+				b.append(" age:").append(age()).append("ms");
 			else if(finishTime > 0)
-				b.append(" time to finish:").append(Duration.between(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(finishTime)));
+				b.append(" time to finish:").append(finishTime - startTime);
 		}
 		
 		b.append(" name:").append(info);

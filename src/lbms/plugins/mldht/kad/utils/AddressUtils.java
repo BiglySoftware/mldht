@@ -224,7 +224,8 @@ public class AddressUtils {
 			if(type.isInstance(local) && !local.isAnyLocalAddress())
 				return local;
 			return null;
-		} catch (IOException e) {
+		} catch (Throwable e) {
+			System.err.println("getDefaultRoute(" + type + ")");
 			e.printStackTrace();
 			return null;
 		}
