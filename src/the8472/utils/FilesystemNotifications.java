@@ -20,7 +20,7 @@ import java.util.function.BiConsumer;
 
 
 public class FilesystemNotifications {
-	
+/*  Android: Not Used	
 	WatchService service;
 	
 	Thread t = new Thread(this::run, "FS-notify");
@@ -78,5 +78,5 @@ public class FilesystemNotifications {
 		callbacks.put(p, callback);
 		
 	}
-
+*/
 }

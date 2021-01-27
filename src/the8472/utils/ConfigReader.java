@@ -38,7 +38,7 @@ import org.xml.sax.SAXException;
 
 
 public class ConfigReader {
-	
+	/* Android: NOt Used
 	public static class ParseException extends RuntimeException {
 		public ParseException(Exception cause) {
 			super(cause);
@@ -108,7 +108,7 @@ public class ConfigReader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
+		* /
 	}
 	
 	public Document read() {
@@ -188,5 +188,5 @@ public class ConfigReader {
 	}
 
 	
-
+*/
 }

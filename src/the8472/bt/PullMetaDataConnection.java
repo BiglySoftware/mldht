@@ -442,6 +442,7 @@ public class PullMetaDataConnection implements Selectable {
 			}
 			
 			if(msgLength < 0) {
+				//noinspection newapi: L$r8$backportedMethods$utility$Integer$1$toUnsignedLong;->toUnsignedLong(B)J
 				terminate("invalid message size:" + Integer.toUnsignedLong(msgLength));
 				return;
 			}

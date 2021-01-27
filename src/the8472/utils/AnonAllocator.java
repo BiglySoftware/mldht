@@ -15,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 
 public class AnonAllocator {
 
+	/*
 	static final boolean MAP_AND_UNLINK_SUPPORTED;
 
 	static {
@@ -45,12 +46,14 @@ public class AnonAllocator {
 
 		MAP_AND_UNLINK_SUPPORTED = result;
 	}
+	*/
 	
 	/**
 	 * on posix systems: allocates disk-backed bytebuffer and immediately unlinks the file
 	 * on others: simply returns a direct bytebuffer
 	 */
 	public static ByteBuffer allocate(int size) {
+/*
 		if(MAP_AND_UNLINK_SUPPORTED) {
 			try {
 				Path p = Files.createTempFile("anon-mapping", ".tmp");
@@ -67,6 +70,7 @@ public class AnonAllocator {
 			}
 		}
 		
+ */
 		return ByteBuffer.allocateDirect(size);
 	}
 

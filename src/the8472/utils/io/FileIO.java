@@ -14,7 +14,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 
 public class FileIO {
-
+/* Not Used
 	public static void writeAndAtomicMove(Path targetName, Consumer<PrintWriter> write) throws IOException {
 		Path tempFile = Files.createTempFile(targetName.getParent(), targetName.getFileName().toString(), ".tmp");
 		
@@ -26,5 +26,5 @@ public class FileIO {
 			Files.move(tempFile, targetName, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
 		}
 	}
-
+*/
 }

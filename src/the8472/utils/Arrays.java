@@ -85,6 +85,7 @@ public class Arrays {
 		int minLength = Math.min(a.length, b.length);
 		for(int i=0;i+7<minLength;i+=8)
 		{
+			//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedLong;->toUnsignedLong(B)J
 			long la = Byte.toUnsignedLong(a[i]) << 56 |
 					Byte.toUnsignedLong(a[i+1]) << 48 |
 					Byte.toUnsignedLong(a[i+2]) << 40 |
@@ -93,6 +94,7 @@ public class Arrays {
 					Byte.toUnsignedLong(a[i+5]) << 16 |
 					Byte.toUnsignedLong(a[i+6]) << 8 |
 					Byte.toUnsignedLong(a[i+7]) << 0;
+			//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedLong;->toUnsignedLong(B)J
 			long lb = Byte.toUnsignedLong(b[i]) << 56 |
 					Byte.toUnsignedLong(b[i+1]) << 48 |
 					Byte.toUnsignedLong(b[i+2]) << 40 |
@@ -103,6 +105,7 @@ public class Arrays {
 					Byte.toUnsignedLong(b[i+7]) << 0;
 			
 			if(la != lb)
+				//noinspection newapi: L$r8$backportedMethods$utility$Integer$2$compare;->compare(II)I
 				return Long.compareUnsigned(la, lb);
 			
 		}
@@ -110,7 +113,9 @@ public class Arrays {
 		int offset = minLength - minLength & 0x7;
 		
 		for(int i=offset;i<minLength;i++) {
+			//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 			int ia = Byte.toUnsignedInt(a[i]);
+			//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 			int ib = Byte.toUnsignedInt(b[i]);
 			if(ia != ib)
 				return Integer.compare(ia, ib);

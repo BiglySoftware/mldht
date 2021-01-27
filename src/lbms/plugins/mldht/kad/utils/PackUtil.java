@@ -70,6 +70,7 @@ public class PackUtil {
 		//UnknownHostException shouldn't occur since IP is provided
 		try {
 
+			//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 			addr = new InetSocketAddress(InetAddress.getByAddress(inetaddr), Short.toUnsignedInt(bb.getShort()));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();

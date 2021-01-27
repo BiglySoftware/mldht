@@ -118,6 +118,7 @@ public class AddressUtils {
 		int i = 0;
 		while(buf.hasRemaining()) {
 			buf.get(ip);
+			//noinspection newapi: L$r8$backportedMethods$utility$Short$1$toUnsignedInt;->toUnsignedInt(S)I
 			addrs[i] = new InetSocketAddress(unchecked(() -> AddressUtils.fromBytesVerbatim(ip)), Short.toUnsignedInt(buf.getShort()));
 			i++;
 		}

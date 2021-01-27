@@ -75,6 +75,7 @@ public interface NodeList {
 					
 					buf.get(rawId);
 					buf.get(rawAddr);
+					//noinspection newapi: L$r8$backportedMethods$utility$Short$1$toUnsignedInt;->toUnsignedInt(S)I
 					int port = Short.toUnsignedInt(buf.getShort());
 					
 					InetAddress addr = unchecked(() -> AddressUtils.fromBytesVerbatim(rawAddr));

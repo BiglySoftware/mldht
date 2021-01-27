@@ -132,10 +132,14 @@ public class Key implements Radixable<Key> {
 		if(mmi == -1)
 			return 0;
 		
+		//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 		int h = Byte.toUnsignedInt(h0[mmi]);
+		//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 		int a = Byte.toUnsignedInt(h1[mmi]);
+		//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 		int b = Byte.toUnsignedInt(h2[mmi]);
-		
+
+		//noinspection newapi: L$r8$backportedMethods$utility$Integer$2$compareUnsigned;->compareUnsigned(II)I
 		return Integer.compareUnsigned(a ^ h, b ^ h);
 	}
 
@@ -172,6 +176,7 @@ public class Key implements Radixable<Key> {
 	
 	public int getInt(int offset) {
 		byte[] hash = this.hash;
+		//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 		return Byte.toUnsignedInt(hash[offset]) << 24 | Byte.toUnsignedInt(hash[offset+1]) << 16 | Byte.toUnsignedInt(hash[offset+2]) << 8 | Byte.toUnsignedInt(hash[offset+3]);
 	}
 	
@@ -278,6 +283,7 @@ public class Key implements Radixable<Key> {
 		int carry = 0;
 		Key out = new Key(this);
 		for(int i=19;i>=0;i--) {
+			//noinspection newapi: L$r8$backportedMethods$utility$Byte$1$toUnsignedInt;->toUnsignedInt(B)I
 			carry = Byte.toUnsignedInt(out.hash[i]) + Byte.toUnsignedInt(x.hash[i]) + carry;
 			out.hash[i] = (byte)(carry & 0xff);
 			carry >>>= 8;

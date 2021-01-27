@@ -1,33 +1,51 @@
-apply plugin: 'java-library'
+apply plugin: 'com.android.library'
 
-compileJava.options.encoding = "UTF-8"
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
-sourceSets {
-    main {
-        java {
-            srcDirs = [
-                    'src'
-            ]
-        }
+    defaultConfig {
+        minSdkVersion 24
+        multiDexEnabled true
+    }
 
-        resources {
-            includes = ['**/*.properties']
-            srcDirs = [
-                    'src'
-            ]
-            exclude 'bin/**'
-            exclude 'bin'
-            exclude 'test/**'
-            exclude 'test'
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        encoding = "UTF-8"
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+ 
+    sourceSets {
+        main {
+            java {
+                srcDirs = [
+                        'src'
+                ]
+                exclude 'the8472/mldht/**'
+            }
+
+            resources {
+                includes = ['**/*.properties']
+                srcDirs = [
+                        'src'
+                ]
+                exclude 'bin/**'
+                exclude 'bin'
+                exclude 'test/**'
+                exclude 'test'
+            }
         }
     }
 }
 
 dependencies {
-    implementation 'net.i2p.crypto:eddsa:0.3.0'
-}
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
+    implementation "androidx.annotation:annotation:${annotationVersion}"
 
-java {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    implementation 'net.i2p.crypto:eddsa:0.3.0'
 }

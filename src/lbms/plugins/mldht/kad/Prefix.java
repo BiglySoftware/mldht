@@ -114,6 +114,7 @@ public class Prefix extends Key {
 		
 		boolean lastByteDiff = (diff & (0xff80 >>> (n & 0x07))) == 0;
 		
+		//noinspection newapi
 		return mmi == lastToCheck ? lastByteDiff : Integer.compareUnsigned(mmi, lastToCheck) > 0;
 	}
 	
