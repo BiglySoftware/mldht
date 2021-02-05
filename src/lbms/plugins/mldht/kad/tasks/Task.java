@@ -26,6 +26,7 @@ import lbms.plugins.mldht.kad.RPCState;
 import lbms.plugins.mldht.kad.messages.MessageBase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +87,9 @@ public abstract class Task implements Comparable<Task> {
 		this.rpc = rpc;
 		this.node = node;
 	
-		inFlight = ConcurrentHashMap.newKeySet();
+		// Android Lies. newKeySet isn't supported https://issuetracker.google.com/issues/171666278
+		//inFlight = ConcurrentHashMap.newKeySet();
+		inFlight = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	}
 	
 	boolean setState(TaskState expected, TaskState newState) {
