@@ -52,7 +52,44 @@ public class RequestCandidateEvaluator {
 	}
 	
 	private boolean inStabilization() {
-		int[] suggestedCounts = closest.entries().mapToInt((k) -> {return todo.nodeForEntry(k).sources.size();}).toArray();
+		/*
+			Android (with desugaring) on various Huawei devices reports:
+			java.lang.IllegalStateException: 
+			(Stack 1)
+				at j$.util.stream.o2$m.accept (o2.java:35)
+				at j$.util.stream.U2$e$a.accept (U2.java:10)
+				at j$.util.Iterator$-CC.$default$forEachRemaining (:2)
+				at j$.util.u$i.forEachRemaining (u.java:1)
+				at j$.util.stream.I1.W (I1.java:4)
+				at j$.util.stream.I1.Y (I1.java:4)
+				at j$.util.stream.I1.h0 (I1.java:2)
+				at j$.util.stream.X1.toArray (X1.java:2)
+				at lbms.plugins.mldht.kad.tasks.RequestCandidateEvaluator.inStabilization (RequestCandidateEvaluator.java)
+			(Stack 2)
+				at j$.util.stream.o2$m.k (o2.java:38)
+				at j$.util.stream.W2$d.k (W2.java:2)
+				at j$.util.stream.I1.W (I1.java:4)
+				at j$.util.stream.I1.Y (I1.java:4)
+				at j$.util.stream.I1.h0 (I1.java:2)
+				at j$.util.stream.X1.toArray (X1.java:2)
+				at lbms.plugins.mldht.kad.tasks.RequestCandidateEvaluator.inStabilization (RequestCandidateEvaluator.java)
+		*/
+		int[] suggestedCounts;
+		try {
+			suggestedCounts = closest.entries().mapToInt((k) -> todo.nodeForEntry(k).sources.size()).toArray();
+		} catch (IllegalStateException e) {
+			// Try logging crash so we know it's still around
+			try {
+				Class<?> claAnalyticsTracker = Class.forName(
+						"com.biglybt.android.client.AnalyticsTracker");
+				Object oIAnalyticsTracker = claAnalyticsTracker.getMethod(
+						"getInstance").invoke(null);
+				oIAnalyticsTracker.getClass().getMethod("logError",
+						Throwable.class).invoke(oIAnalyticsTracker, e);
+			} catch (Throwable ignore) {
+			}
+			suggestedCounts = new int[] { 0 };
+		}
 		
 		return Arrays.stream(suggestedCounts).anyMatch(i -> i >= 5) || Arrays.stream(suggestedCounts).filter(i -> i >= 4).count() >= 2;
 	}
