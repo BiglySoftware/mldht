@@ -107,7 +107,11 @@ This requires a non-contiguous search
 	}
 	
 	public void fill(boolean includeOurself) {
-		RoutingTable table = owner.getNode().table();
+		Node node = owner.getNode();
+		if (node == null) {
+			return;
+		}
+		RoutingTable table = node.table();
 		
 		
 		final int initialIdx = table.indexForId(targetKey);
@@ -160,7 +164,11 @@ This requires a non-contiguous search
 		
 		shave();
 		
-		RPCServer srv = owner.getServerManager().getRandomActiveServer(true);
+		RPCServerManager serverManager = owner.getServerManager();
+		if (serverManager == null) {
+			return;
+		}
+		RPCServer srv = serverManager.getRandomActiveServer(true);
 		
 		if(includeOurself && srv != null && srv.getPublicAddress() != null && entries.size() < max_entries)
 		{
