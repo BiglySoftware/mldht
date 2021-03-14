@@ -28,6 +28,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
+import the8472.utils.AndroidUtils;
+
 /**
  * used a linked transfer queue for non-scheduled tasks to achieve high throughput / avoid lock contention.
  * 
@@ -97,7 +99,11 @@ public class NonblockingScheduledExecutor implements ScheduledExecutorService {
 		ThreadFactory f = (r) -> {
 			Thread t = new Thread(group, r);
 			if(handler != null)
-				t.setUncaughtExceptionHandler(handler);
+				t.setUncaughtExceptionHandler(
+						(t1, e) -> {
+							AndroidUtils.logCrash(e, t1);
+							handler.uncaughtException(t1, e);
+						});
 			t.setDaemon(true);
 			t.setName(name);
 			return t;

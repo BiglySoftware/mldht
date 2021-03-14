@@ -43,6 +43,7 @@ import lbms.plugins.mldht.kad.utils.AddressUtils;
 import lbms.plugins.mldht.kad.utils.ByteWrapper;
 import lbms.plugins.mldht.kad.utils.PopulationEstimator;
 import lbms.plugins.mldht.utils.NIOConnectionManager;
+import the8472.utils.AndroidUtils;
 
 import java.io.*;
 import java.net.Inet4Address;
@@ -1269,7 +1270,10 @@ public class DHT implements DHTBase {
 				defaultScheduler = new ScheduledThreadPoolExecutor(threads, (ThreadFactory) r -> {
 					Thread t = new Thread(executorGroup, r, "mlDHT Scheduler");
 					
-					t.setUncaughtExceptionHandler((t1, e) -> DHT.log(e, LogLevel.Error));
+					t.setUncaughtExceptionHandler((t1, e) -> {
+						AndroidUtils.logCrash(e, t1);
+						DHT.log(e, LogLevel.Error);
+					});
 					t.setDaemon(true);
 					return t;
 				});
